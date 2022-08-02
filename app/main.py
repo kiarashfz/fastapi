@@ -4,7 +4,13 @@ from fastapi import FastAPI, Response, status, HTTPException, Depends
 from pydantic import BaseModel
 import psycopg2
 from psycopg2.extras import RealDictCursor
+from sqlalchemy.orm import Session
+
 from .config import settings
+from . import models
+from .database import engine, get_db
+
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
@@ -127,3 +133,26 @@ async def delete_post(post_id: int):
     except Exception as error:
         print(error)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(error))
+
+
+@app.get("/sqlalchemy/posts")
+async def all_posts_sqlalchemy(db: Session = Depends(get_db)):
+    posts = db.query(models.Post).all()
+    return {"posts": posts}
+
+
+@app.get("/sqlalchemy/posts/{post_id}")
+async def specific_post_sqlalchemy(post_id, db: Session = Depends(get_db)):
+    post = db.query(models.Post).get(post_id)
+    if not post:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id {post_id} not found!")
+    return {"post": post}
+
+
+@app.post("/sqlalchemy/posts")
+async def create_post_sqlalchemy(new_post: Post, db: Session = Depends(get_db)):
+    created_post = models.Post(title=new_post.title, content=new_post.content, published=new_post.published)
+    db.add(created_post)
+    db.commit()
+    db.refresh(created_post)
+    return {"new_post": created_post}
