@@ -122,17 +122,17 @@ async def update_post(post_id: int, updated_post: Post):
 
 @app.delete("/posts/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_post(post_id: int):
-    try:
-        query = "DELETE FROM posts WHERE id = %s RETURNING id;"
-        cur.execute(query, (post_id,))
-        deleted_post = cur.fetchone()
-        if not deleted_post:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id {post_id} not found!")
-        conn.commit()
-        return Response(status_code=status.HTTP_204_NO_CONTENT)
-    except Exception as error:
-        print(error)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(error))
+    # try:
+    query = "DELETE FROM posts WHERE id = %s RETURNING id;"
+    cur.execute(query, (post_id,))
+    deleted_post = cur.fetchone()
+    if not deleted_post:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id {post_id} not found!")
+    conn.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    # except Exception as error:
+    #     print(error)
+    #     raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(error))
 
 
 @app.get("/sqlalchemy/posts")
@@ -144,6 +144,7 @@ async def all_posts_sqlalchemy(db: Session = Depends(get_db)):
 @app.get("/sqlalchemy/posts/{post_id}")
 async def specific_post_sqlalchemy(post_id, db: Session = Depends(get_db)):
     post = db.query(models.Post).get(post_id)
+    # post = db.query(models.Post).filter(models.Post.id == post_id).first()
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id {post_id} not found!")
     return {"post": post}
@@ -151,8 +152,28 @@ async def specific_post_sqlalchemy(post_id, db: Session = Depends(get_db)):
 
 @app.post("/sqlalchemy/posts")
 async def create_post_sqlalchemy(new_post: Post, db: Session = Depends(get_db)):
-    created_post = models.Post(title=new_post.title, content=new_post.content, published=new_post.published)
+    # created_post = models.Post(title=new_post.title, content=new_post.content, published=new_post.published)
+    created_post = models.Post(**new_post.dict())
     db.add(created_post)
     db.commit()
     db.refresh(created_post)
     return {"new_post": created_post}
+
+
+@app.delete("/sqlalchemy/posts/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_post_sqlalchemy(post_id: int, db: Session = Depends(get_db)):
+    post = db.query(models.Post).get(post_id)
+    if not post:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id {post_id} not found!")
+    db.delete(post)
+    db.commit()
+
+
+@app.put("/sqlalchemy/{post_id}")
+async def update_post_sqlalchemy(post: Post, post_id: int, db: Session = Depends(get_db)):
+    post = db.query(models.Post).filter(models.Post.id == post_id).update(post.dict())
+    if not post:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id {post_id} not found!")
+    db.commit()
+    updated_post = db.query(models.Post).get(post_id)
+    return {"updated_post": updated_post}
