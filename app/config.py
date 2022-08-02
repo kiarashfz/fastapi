@@ -6,7 +6,6 @@ class Settings(BaseSettings):
     pg_database: str
     pg_user: str
     pg_password: str
-    pg_server: str
     api_key: str
 
     class Config:
