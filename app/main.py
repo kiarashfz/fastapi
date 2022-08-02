@@ -1,7 +1,7 @@
 from time import sleep
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import FastAPI, Response, status, HTTPException, Depends
-from pydantic import BaseModel
+from .schemas import Post
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from sqlalchemy.orm import Session
@@ -45,12 +45,6 @@ while True:
         print('Connecting to database failed!')
         print(f'Error: {err}')
         sleep(2)
-
-
-class Post(BaseModel):
-    title: str
-    content: str
-    published: bool = True
 
 
 @app.get("/")
