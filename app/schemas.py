@@ -24,3 +24,19 @@ class PostUpdate(PostBase):
 class PostResponse(PostBase):
     id: int
     created_at: datetime.datetime
+
+
+class UserBase(BaseModel):
+    email: str
+
+    class Config:
+        orm_mode = True
+
+
+class UserCreate(UserBase):
+    password: str
+
+
+class UserResponse(UserBase):
+    id: str
+    created_at: datetime.datetime
