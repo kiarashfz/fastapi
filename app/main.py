@@ -1,14 +1,15 @@
 from time import sleep
 from typing import List
 
-from fastapi.security import OAuth2PasswordBearer
-from fastapi import FastAPI, Response, status, HTTPException, Depends
 import psycopg2
+import sqlalchemy.exc
+from fastapi import FastAPI, Response, status, HTTPException, Depends
+from fastapi.security import OAuth2PasswordBearer
 from psycopg2.extras import RealDictCursor
 from sqlalchemy.orm import Session
 
-from .config import settings
 from . import models, schemas
+from .config import settings
 from .database import engine, get_db
 
 models.Base.metadata.create_all(bind=engine)
@@ -51,6 +52,11 @@ while True:
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
+
+
+# @app.get("/items/")
+# async def read_items(token: str = Depends(oauth2_scheme)):
+#     return {"token": token}
 
 
 @app.get("/hello/{name}", dependencies=[Depends(api_key_auth)])
@@ -175,3 +181,16 @@ async def update_post_sqlalchemy(post: schemas.PostUpdate, post_id: int, db: Ses
     db.commit()
     updated_post = db.query(models.Post).get(post_id)
     return updated_post
+
+
+@app.post("/users", status_code=status.HTTP_201_CREATED, response_model=schemas.UserResponse)
+async def create_user(new_user: schemas.UserCreate, db: Session = Depends(get_db)):
+    try:
+        created_user = models.User(**new_user.dict())
+        db.add(created_user)
+        db.commit()
+        db.refresh(created_user)
+        return created_user
+    except sqlalchemy.exc.IntegrityError:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                            detail=f"User with email: {new_user.email} already exists!")
