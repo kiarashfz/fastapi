@@ -1,6 +1,6 @@
 import datetime
 
-from pydantic import BaseModel, Extra
+from pydantic import BaseModel, Extra, EmailStr
 
 
 class PostBase(BaseModel):
@@ -27,7 +27,7 @@ class PostResponse(PostBase):
 
 
 class UserBase(BaseModel):
-    email: str
+    email: EmailStr
 
     class Config:
         orm_mode = True
