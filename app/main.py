@@ -1,13 +1,14 @@
 from time import sleep
+from typing import List
+
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import FastAPI, Response, status, HTTPException, Depends
-from .schemas import Post
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from sqlalchemy.orm import Session
 
 from .config import settings
-from . import models
+from . import models, schemas
 from .database import engine, get_db
 
 models.Base.metadata.create_all(bind=engine)
@@ -88,7 +89,7 @@ async def get_all_posts():
 
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
-async def create_post(new_post: Post):
+async def create_post(new_post: schemas.PostCreate):
     try:
         query = "INSERT INTO posts(title, content) VALUES(%s, %s) RETURNING *;"
         cur.execute(query, (new_post.title, new_post.content))
@@ -101,7 +102,7 @@ async def create_post(new_post: Post):
 
 
 @app.put("/posts/{post_id}")
-async def update_post(post_id: int, updated_post: Post):
+async def update_post(post_id: int, updated_post: schemas.PostUpdate):
     # try:
     query = "UPDATE posts SET title = %s, content = %s, published = %s WHERE id = %s RETURNING *"
     cur.execute(query, (updated_post.title, updated_post.content, updated_post.published, post_id))
@@ -129,29 +130,32 @@ async def delete_post(post_id: int):
     #     raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(error))
 
 
-@app.get("/sqlalchemy/posts")
+@app.get("/sqlalchemy/posts", response_model=List[schemas.PostResponse])
 async def all_posts_sqlalchemy(db: Session = Depends(get_db)):
     posts = db.query(models.Post).all()
-    return {"posts": posts}
+    return posts
 
 
-@app.get("/sqlalchemy/posts/{post_id}")
+@app.get("/sqlalchemy/posts/{post_id}", response_model=schemas.PostResponse)
 async def specific_post_sqlalchemy(post_id, db: Session = Depends(get_db)):
     post = db.query(models.Post).get(post_id)
     # post = db.query(models.Post).filter(models.Post.id == post_id).first()
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id {post_id} not found!")
-    return {"post": post}
+    return post
 
 
-@app.post("/sqlalchemy/posts")
-async def create_post_sqlalchemy(new_post: Post, db: Session = Depends(get_db)):
-    # created_post = models.Post(title=new_post.title, content=new_post.content, published=new_post.published)
-    created_post = models.Post(**new_post.dict())
-    db.add(created_post)
-    db.commit()
-    db.refresh(created_post)
-    return {"new_post": created_post}
+@app.post("/sqlalchemy/posts", status_code=status.HTTP_201_CREATED, response_model=schemas.PostResponse)
+async def create_post_sqlalchemy(new_post: schemas.PostCreate, db: Session = Depends(get_db)):
+    try:
+        # created_post = models.Post(title=new_post.title, content=new_post.content, published=new_post.published)
+        created_post = models.Post(**new_post.dict())
+        db.add(created_post)
+        db.commit()
+        db.refresh(created_post)
+        return created_post
+    except Exception as error:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(error))
 
 
 @app.delete("/sqlalchemy/posts/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -163,11 +167,11 @@ async def delete_post_sqlalchemy(post_id: int, db: Session = Depends(get_db)):
     db.commit()
 
 
-@app.put("/sqlalchemy/{post_id}")
-async def update_post_sqlalchemy(post: Post, post_id: int, db: Session = Depends(get_db)):
+@app.put("/sqlalchemy/{post_id}", response_model=schemas.PostResponse)
+async def update_post_sqlalchemy(post: schemas.PostUpdate, post_id: int, db: Session = Depends(get_db)):
     post = db.query(models.Post).filter(models.Post.id == post_id).update(post.dict())
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id {post_id} not found!")
     db.commit()
     updated_post = db.query(models.Post).get(post_id)
-    return {"updated_post": updated_post}
+    return updated_post
