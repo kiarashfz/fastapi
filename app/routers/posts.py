@@ -6,7 +6,10 @@ from sqlalchemy.orm import Session
 from app import models, schemas
 from app.database import get_db
 # from app.main import conn, cur
+from app.oauth2 import get_current_user
 
+
+# TODO: mituni dependencie authenticate usero inja bzri
 router = APIRouter(
     prefix="/posts",
     tags=["Posts"]
@@ -85,13 +88,13 @@ router = APIRouter(
 #     #     raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(error))
 
 
-@router.get("/", response_model=List[schemas.PostResponse])
+@router.get("/", response_model=List[schemas.PostResponse], dependencies=[Depends(get_current_user)])
 async def all_posts_sqlalchemy(db: Session = Depends(get_db)):
     posts = db.query(models.Post).all()
     return posts
 
 
-@router.get("/{post_id}", response_model=schemas.PostResponse)
+@router.get("/{post_id}", response_model=schemas.PostResponse, dependencies=[Depends(get_current_user)])
 async def specific_post_sqlalchemy(post_id, db: Session = Depends(get_db)):
     post = db.query(models.Post).get(post_id)
     # post = db.query(models.Post).filter(models.Post.id == post_id).first()
@@ -100,7 +103,8 @@ async def specific_post_sqlalchemy(post_id, db: Session = Depends(get_db)):
     return post
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.PostResponse)
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.PostResponse,
+             dependencies=[Depends(get_current_user)])
 async def create_post_sqlalchemy(new_post: schemas.PostCreate, db: Session = Depends(get_db)):
     try:
         # created_post = models.Post(title=new_post.title, content=new_post.content, published=new_post.published)
@@ -113,7 +117,7 @@ async def create_post_sqlalchemy(new_post: schemas.PostCreate, db: Session = Dep
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(error))
 
 
-@router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(get_current_user)])
 async def delete_post_sqlalchemy(post_id: int, db: Session = Depends(get_db)):
     post = db.query(models.Post).get(post_id)
     if not post:
@@ -122,7 +126,7 @@ async def delete_post_sqlalchemy(post_id: int, db: Session = Depends(get_db)):
     db.commit()
 
 
-@router.put("/{post_id}", response_model=schemas.PostResponse)
+@router.put("/{post_id}", response_model=schemas.PostResponse, dependencies=[Depends(get_current_user)])
 async def update_post_sqlalchemy(post: schemas.PostUpdate, post_id: int, db: Session = Depends(get_db)):
     post = db.query(models.Post).filter(models.Post.id == post_id).update(post.dict())
     if not post:
