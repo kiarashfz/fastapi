@@ -8,25 +8,28 @@ from psycopg2.extras import RealDictCursor
 from app import models
 from app.config import settings
 from app.database import engine
-from app.routers import posts, users
+from app.routers import posts, users, auth
 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
 app.include_router(posts.router)
 app.include_router(users.router)
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-api_keys = [
-    settings.api_key
-]  # This is encrypted in the database
+app.include_router(auth.router)
 
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+# api_keys = [
+#     settings.api_key
+# ]  # This is encrypted in the database
 
-def api_key_auth(api_key: str = Depends(oauth2_scheme)):
-    if api_key not in api_keys:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Forbidden"
-        )
+#
+# def api_key_auth(api_key: str = Depends(oauth2_scheme)):
+#     if api_key not in api_keys:
+#         raise HTTPException(
+#             status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail="Forbidden"
+#         )
 
 
 def connect_to_db(host: str, database: str, user: str, password: str):
@@ -58,8 +61,11 @@ async def root():
 #     return {"token": token}
 
 
-@app.get("/hello/{name}", dependencies=[Depends(api_key_auth)])
+# @app.get("/hello/{name}", dependencies=[Depends(api_key_auth)])
+# async def say_hello(name: str):
+#     return {"message": f"Hello {name}"}
+
+
+@app.get("/hello/{name}")
 async def say_hello(name: str):
     return {"message": f"Hello {name}"}
-
-
