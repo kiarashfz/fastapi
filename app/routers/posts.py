@@ -8,7 +8,8 @@ from app.database import get_db
 # from app.main import conn, cur
 
 router = APIRouter(
-    prefix="/posts"
+    prefix="/posts",
+    tags=["Posts"]
 )
 
 

@@ -9,7 +9,8 @@ from app.database import get_db
 from app.utils import password_hasher
 
 router = APIRouter(
-    prefix="/users"
+    prefix="/users",
+    tags=["Users"]
 )
 
 
