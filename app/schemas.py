@@ -40,3 +40,19 @@ class UserCreate(UserBase):
 class UserResponse(UserBase):
     id: str
     created_at: datetime.datetime
+
+
+class UserLogin(UserBase):
+    password: str
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+    class Config:
+        orm_mode = True
+
+
+class TokenData(BaseModel):
+    email: EmailStr
