@@ -29,3 +29,20 @@ class Query:
 schema = strawberry.Schema(query=Query)
 
 graphql_app = GraphQL(schema)
+
+## query
+# query ($userId: UserId!){
+#     user(userId: $userId){
+#         name
+#         userId
+#         fname
+#     }
+# }
+
+## define variable
+# {
+#     "userId": {
+#         "userId": 6,
+#         "FName2": "hhh"
+#     }
+# }
