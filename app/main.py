@@ -8,11 +8,14 @@ from psycopg2.extras import RealDictCursor
 from app import models
 from app.config import settings
 from app.database import engine
+from app.oauth2 import get_api_key
 from app.routers import posts, users, auth
 
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+app = FastAPI(
+    dependencies=[Depends(get_api_key)]
+)
 
 app.include_router(posts.router)
 app.include_router(users.router)
