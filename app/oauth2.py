@@ -8,13 +8,14 @@ from app import schemas, models
 
 from fastapi.security.oauth2 import OAuth2PasswordBearer
 
+from app.config import settings
 from app.database import get_db
 from app.schemas import TokenData
 from app.utils import verify_password
 
-SECRET_KEY = "501df9c3e0e1c7a611bacffeeff6f3ef01e72975bde4bc8abf18f1ed0f7f08ce"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+SECRET_KEY = settings.secret_key
+ALGORITHM = settings.algorithm
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
