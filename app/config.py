@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     secret_key: str
     algorithm: str
     access_token_expire_minutes: int
+    api_key: str
+    api_key_name: str
 
     class Config:
         env_file = "app/.env"
