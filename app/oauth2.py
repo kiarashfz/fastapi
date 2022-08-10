@@ -1,6 +1,6 @@
 import datetime
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Security
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
@@ -12,6 +12,20 @@ from app.config import settings
 from app.database import get_db
 from app.schemas import TokenData
 from app.utils import verify_password
+from fastapi.security.api_key import APIKeyHeader
+
+API_KEY = settings.api_key
+API_KEY_NAME = settings.api_key_name
+api_key_header = APIKeyHeader(name=settings.api_key_name, auto_error=False)
+
+
+async def get_api_key(header_api_key: str = Security(api_key_header)):
+    if header_api_key == settings.api_key:
+        return header_api_key
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Could not validate credentials"
+        )
 
 SECRET_KEY = settings.secret_key
 ALGORITHM = settings.algorithm
