@@ -5,21 +5,25 @@ from fastapi import FastAPI, status, HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer
 from psycopg2.extras import RealDictCursor
 
-from app import models
+from app import models, websockets
 from app.config import settings
 from app.database import engine
+from app.graphqls import graphql_app
 from app.oauth2 import get_api_key
 from app.routers import posts, users, auth
 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    dependencies=[Depends(get_api_key)]
+    # dependencies=[Depends(get_api_key)]
 )
 
+app.add_route("/graphql", graphql_app)
+app.add_websocket_route("/graphql", graphql_app)
 app.include_router(posts.router)
 app.include_router(users.router)
 app.include_router(auth.router)
+app.include_router(websockets.router)
 
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 # api_keys = [
