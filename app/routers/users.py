@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app import models, schemas
 from app.database import get_db
+from app.oauth2 import get_current_user_id, get_current_user
 from app.utils import password_hasher
 
 router = APIRouter(
@@ -14,7 +15,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=List[schemas.UserResponse])
+@router.get("/", response_model=List[schemas.UserResponse], dependencies=[Depends(get_current_user_id)])
 async def get_all_users(db: Session = Depends(get_db)):
     all_users = db.query(models.User).all()
     return all_users
