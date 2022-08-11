@@ -136,12 +136,12 @@
 					}
 				},
 				"url": {
-					"raw": "{{URL}}posts/28",
+					"raw": "{{URL}}posts/1",
 					"host": [
 						"{{URL}}posts"
 					],
 					"path": [
-						"28"
+						"1"
 					],
 					"query": [
 						{
@@ -185,12 +185,12 @@
 					}
 				},
 				"url": {
-					"raw": "{{URL}}posts/5",
+					"raw": "{{URL}}posts/4",
 					"host": [
 						"{{URL}}posts"
 					],
 					"path": [
-						"5"
+						"4"
 					],
 					"query": [
 						{
@@ -288,7 +288,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"title\": \"tjdid\",\n    \"content\": \"cjdid\"\n}",
+					"raw": "{\n    \"title\": \"tjrrrrrrid\",\n    \"content\": \"kkkkkk\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -296,12 +296,12 @@
 					}
 				},
 				"url": {
-					"raw": "{{URL}}posts/23",
+					"raw": "{{URL}}posts/6",
 					"host": [
 						"{{URL}}posts"
 					],
 					"path": [
-						"23"
+						"6"
 					]
 				}
 			},
@@ -414,7 +414,7 @@
 					"formdata": [
 						{
 							"key": "username",
-							"value": "user@1.com",
+							"value": "user@2.com",
 							"type": "default"
 						},
 						{
