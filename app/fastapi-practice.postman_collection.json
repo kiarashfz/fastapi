@@ -103,6 +103,39 @@
 			"response": []
 		},
 		{
+			"name": "all user posts",
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "{{API_KEY_NAME}}",
+						"value": "{{API_KEY}}",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{URL}}posts/me",
+					"host": [
+						"{{URL}}posts"
+					],
+					"path": [
+						"me"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "specific post",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
