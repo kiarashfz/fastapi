@@ -105,12 +105,21 @@ async def latest_post(db: Session = Depends(get_db)):
     return last_post
 
 
-@router.get("/{post_id}", response_model=schemas.PostResponse, dependencies=[Depends(get_current_user_id)])
-async def specific_post_sqlalchemy(post_id, db: Session = Depends(get_db)):
+@router.get("/me/latest", response_model=schemas.PostResponse)
+async def user_latest_post(db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
+    last_post = db.query(models.Post).filter(models.Post.user_id == user_id).order_by(
+        models.Post.created_at.desc()).first()
+    return last_post
+
+
+@router.get("/{post_id}", response_model=schemas.PostResponse)
+async def specific_post_sqlalchemy(post_id, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
     post = db.query(models.Post).get(post_id)
     # post = db.query(models.Post).filter(models.Post.id == post_id).first()
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id {post_id} not found!")
+    elif post.user_id != user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="This post isn\'t for you!")
     return post
 
 
