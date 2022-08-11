@@ -54,5 +54,13 @@ class Token(BaseModel):
         orm_mode = True
 
 
+class LoginResponse(UserBase, Token):
+    pass
+
+
 class TokenData(BaseModel):
     email: EmailStr
+
+
+class TokenDataUserId(BaseModel):
+    user_id: int
