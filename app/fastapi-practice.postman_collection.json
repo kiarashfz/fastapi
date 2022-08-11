@@ -169,12 +169,12 @@
 					}
 				},
 				"url": {
-					"raw": "{{URL}}posts/1",
+					"raw": "{{URL}}posts/6",
 					"host": [
 						"{{URL}}posts"
 					],
 					"path": [
-						"1"
+						"6"
 					],
 					"query": [
 						{
@@ -238,6 +238,68 @@
 		},
 		{
 			"name": "latest post",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Parse-Application-Id",
+						"value": "C9ewa0HirqBtRibXN06clgTe8fF3AwCMoQYNdCAX",
+						"type": "default"
+					},
+					{
+						"key": "X-Parse-REST-API-Key",
+						"value": "mtnDSzD05YTEWLa9ZdzTRxkkbh9E7PPUQVqYqFZ5",
+						"type": "default"
+					},
+					{
+						"key": "{{API_KEY_NAME}}",
+						"value": "{{API_KEY}}",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{URL}}posts/latest",
+					"host": [
+						"{{URL}}posts"
+					],
+					"path": [
+						"latest"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "2",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "user latest post",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
