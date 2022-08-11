@@ -15,7 +15,7 @@ from app.routers import posts, users, auth
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    # dependencies=[Depends(get_api_key)]
+    dependencies=[Depends(get_api_key)]
 )
 
 app.add_route("/graphql", graphql_app)
