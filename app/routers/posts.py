@@ -6,8 +6,7 @@ from sqlalchemy.orm import Session
 from app import models, schemas
 from app.database import get_db
 # from app.main import conn, cur
-from app.oauth2 import get_current_user
-
+from app.oauth2 import get_current_user_id
 
 # TODO: mituni dependencie authenticate usero inja bzri
 router = APIRouter(
@@ -88,13 +87,19 @@ router = APIRouter(
 #     #     raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(error))
 
 
-@router.get("/", response_model=List[schemas.PostResponse], dependencies=[Depends(get_current_user)])
+@router.get("/", response_model=List[schemas.PostResponse], dependencies=[Depends(get_current_user_id)])
 async def all_posts_sqlalchemy(db: Session = Depends(get_db)):
     posts = db.query(models.Post).all()
     return posts
 
 
-@router.get("/{post_id}", response_model=schemas.PostResponse, dependencies=[Depends(get_current_user)])
+@router.get("/latest", response_model=schemas.PostResponse, dependencies=[Depends(get_current_user_id)])
+async def latest_post(db: Session = Depends(get_db)):
+    last_post = db.query(models.Post).order_by(models.Post.created_at.desc()).first()
+    return last_post
+
+
+@router.get("/{post_id}", response_model=schemas.PostResponse, dependencies=[Depends(get_current_user_id)])
 async def specific_post_sqlalchemy(post_id, db: Session = Depends(get_db)):
     post = db.query(models.Post).get(post_id)
     # post = db.query(models.Post).filter(models.Post.id == post_id).first()
@@ -104,7 +109,7 @@ async def specific_post_sqlalchemy(post_id, db: Session = Depends(get_db)):
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.PostResponse,
-             dependencies=[Depends(get_current_user)])
+             dependencies=[Depends(get_current_user_id)])
 async def create_post_sqlalchemy(new_post: schemas.PostCreate, db: Session = Depends(get_db)):
     try:
         # created_post = models.Post(title=new_post.title, content=new_post.content, published=new_post.published)
@@ -117,7 +122,7 @@ async def create_post_sqlalchemy(new_post: schemas.PostCreate, db: Session = Dep
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(error))
 
 
-@router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(get_current_user)])
+@router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(get_current_user_id)])
 async def delete_post_sqlalchemy(post_id: int, db: Session = Depends(get_db)):
     post = db.query(models.Post).get(post_id)
     if not post:
@@ -126,7 +131,7 @@ async def delete_post_sqlalchemy(post_id: int, db: Session = Depends(get_db)):
     db.commit()
 
 
-@router.put("/{post_id}", response_model=schemas.PostResponse, dependencies=[Depends(get_current_user)])
+@router.put("/{post_id}", response_model=schemas.PostResponse, dependencies=[Depends(get_current_user_id)])
 async def update_post_sqlalchemy(post: schemas.PostUpdate, post_id: int, db: Session = Depends(get_db)):
     post = db.query(models.Post).filter(models.Post.id == post_id).update(post.dict())
     if not post:
