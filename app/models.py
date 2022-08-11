@@ -1,19 +1,10 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, Column, Integer, String, TIMESTAMP
+from sqlalchemy import Boolean, Column, Integer, String, TIMESTAMP, ForeignKey
 from sqlalchemy.sql.expression import text
+from sqlalchemy.orm import relationship
 from app.database import Base
 from sqlalchemy.sql import func
-
-
-class Post(Base):
-    __tablename__ = "posts"
-
-    id = Column(Integer, primary_key=True, index=True, nullable=False)
-    title = Column(String, nullable=False)
-    content = Column(String, nullable=False)
-    published = Column(Boolean, server_default="TRUE")
-    created_at = Column(TIMESTAMP(timezone=True), server_default=text("NOW()"))
 
 
 class User(Base):
@@ -23,7 +14,18 @@ class User(Base):
     email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), server_default=text("NOW()"))
+    posts = relationship("Post")
 
+
+class Post(Base):
+    __tablename__ = "posts"
+
+    id = Column(Integer, primary_key=True, index=True, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    title = Column(String, nullable=False)
+    content = Column(String, nullable=False)
+    published = Column(Boolean, server_default="TRUE")
+    created_at = Column(TIMESTAMP(timezone=True), server_default=text("NOW()"))
 
 # class User(Base):
 #     __tablename__ = "users"
