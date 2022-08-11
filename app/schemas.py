@@ -24,6 +24,7 @@ class PostUpdate(PostBase):
 class PostResponse(PostBase):
     id: int
     created_at: datetime.datetime
+    user_id: int
 
 
 class UserBase(BaseModel):
