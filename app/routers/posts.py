@@ -108,12 +108,12 @@ async def specific_post_sqlalchemy(post_id, db: Session = Depends(get_db)):
     return post
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.PostResponse,
-             dependencies=[Depends(get_current_user_id)])
-async def create_post_sqlalchemy(new_post: schemas.PostCreate, db: Session = Depends(get_db)):
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.PostResponse)
+async def create_post_sqlalchemy(new_post: schemas.PostCreate, db: Session = Depends(get_db),
+                                 user_id: int = Depends(get_current_user_id)):
     try:
         # created_post = models.Post(title=new_post.title, content=new_post.content, published=new_post.published)
-        created_post = models.Post(**new_post.dict())
+        created_post = models.Post(**new_post.dict(), user_id=user_id)
         db.add(created_post)
         db.commit()
         db.refresh(created_post)
