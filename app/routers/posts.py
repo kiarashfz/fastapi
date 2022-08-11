@@ -112,7 +112,6 @@ async def specific_post_sqlalchemy(post_id, db: Session = Depends(get_db)):
 async def create_post_sqlalchemy(new_post: schemas.PostCreate, db: Session = Depends(get_db),
                                  user_id: int = Depends(get_current_user_id)):
     try:
-        # created_post = models.Post(title=new_post.title, content=new_post.content, published=new_post.published)
         created_post = models.Post(**new_post.dict(), user_id=user_id)
         db.add(created_post)
         db.commit()
@@ -122,20 +121,29 @@ async def create_post_sqlalchemy(new_post: schemas.PostCreate, db: Session = Dep
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(error))
 
 
-@router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(get_current_user_id)])
-async def delete_post_sqlalchemy(post_id: int, db: Session = Depends(get_db)):
+@router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_post_sqlalchemy(post_id: int, db: Session = Depends(get_db),
+                                 user_id: int = Depends(get_current_user_id)):
     post = db.query(models.Post).get(post_id)
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id {post_id} not found!")
+    elif post.user_id != user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="This post isn\'t for you!")
     db.delete(post)
     db.commit()
 
 
-@router.put("/{post_id}", response_model=schemas.PostResponse, dependencies=[Depends(get_current_user_id)])
-async def update_post_sqlalchemy(post: schemas.PostUpdate, post_id: int, db: Session = Depends(get_db)):
-    post = db.query(models.Post).filter(models.Post.id == post_id).update(post.dict())
-    if not post:
+@router.put("/{post_id}", response_model=schemas.PostResponse)
+async def update_post_sqlalchemy(updated_post: schemas.PostUpdate, post_id: int, db: Session = Depends(get_db),
+                                 user_id: int = Depends(get_current_user_id)):
+    post_query = db.query(models.Post).filter(models.Post.id == post_id)
+    # updating
+    post_query.update(updated_post.dict())
+    # get updated post
+    updated_post = post_query.first()
+    if not updated_post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id {post_id} not found!")
+    elif updated_post.user_id != user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="This post isn\'t for you!")
     db.commit()
-    updated_post = db.query(models.Post).get(post_id)
     return updated_post
