@@ -27,6 +27,7 @@ async def get_api_key(header_api_key: str = Security(api_key_header)):
             status_code=status.HTTP_403_FORBIDDEN, detail="Could not validate credentials"
         )
 
+
 SECRET_KEY = settings.secret_key
 ALGORITHM = settings.algorithm
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes
@@ -95,3 +96,18 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     if user is None:
         raise credentials_exception
     return user
+
+
+"""wrong api key logic"""
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+# api_keys = [
+#     settings.api_key
+# ]  # This is encrypted in the database
+
+#
+# def api_key_auth(api_key: str = Depends(oauth2_scheme)):
+#     if api_key not in api_keys:
+#         raise HTTPException(
+#             status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail="Forbidden"
+#         )
