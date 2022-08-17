@@ -24,3 +24,27 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+"""connect to postgres with psycopg2"""
+# import psycopg2
+# from psycopg2.extras import RealDictCursor
+# from time import sleep
+
+# def connect_to_db(host: str, database: str, user: str, password: str):
+#     pg_connection = psycopg2.connect(host=host, database=database, user=user, password=password,
+#                                      cursor_factory=RealDictCursor)
+#     # Open a cursor to perform database operations
+#     pg_cursor = pg_connection.cursor()
+#     print('Database connection was successful')
+#     return pg_connection, pg_cursor
+#
+#
+# while True:
+#     try:
+#         conn, cur = connect_to_db(settings.pg_host, settings.pg_database, settings.pg_user, settings.pg_password)
+#         break
+#     except Exception as err:
+#         print('Connecting to database failed!')
+#         print(f'Error: {err}')
+#         sleep(2)
