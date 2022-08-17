@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from fastapi import HTTPException, status, Depends, Response, APIRouter
 from sqlalchemy.orm import Session
@@ -88,14 +88,17 @@ router = APIRouter(
 
 
 @router.get("/", response_model=List[schemas.PostResponse], dependencies=[Depends(get_current_user_id)])
-async def all_posts_sqlalchemy(db: Session = Depends(get_db)):
-    posts = db.query(models.Post).all()
+async def all_posts_sqlalchemy(db: Session = Depends(get_db), limit: int = 10, skip: int = 0,
+                               search: str = ""):
+    posts = db.query(models.Post).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
     return posts
 
 
 @router.get("/me", response_model=List[schemas.PostResponse])
-async def all_user_posts(db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
-    user_posts = db.query(models.Post).filter(models.Post.user_id == user_id).all()
+async def all_user_posts(db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id), limit: int = 10,
+                         skip: int = 0, search: Optional[str] = ""):
+    user_posts = db.query(models.Post).filter(models.Post.user_id == user_id, models.Post.title.contains(search)).limit(
+        limit).offset(skip).all()
     return user_posts
 
 
