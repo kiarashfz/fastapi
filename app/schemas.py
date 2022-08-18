@@ -1,6 +1,6 @@
 import datetime
 
-from pydantic import BaseModel, Extra, EmailStr
+from pydantic import BaseModel, Extra, EmailStr, conint
 
 
 class UserBase(BaseModel):
@@ -66,3 +66,19 @@ class TokenData(BaseModel):
 
 class TokenDataUserId(BaseModel):
     user_id: int
+
+
+class VoteBase(BaseModel):
+    post_id: int
+
+    class Config:
+        orm_mode = True
+
+
+class VoteCreate(VoteBase):
+    dir: conint(le=1, ge=0)
+
+
+class VoteResponse(VoteBase):
+    user_id: int
+    user: UserResponse
