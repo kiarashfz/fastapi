@@ -28,6 +28,14 @@ class Post(Base):
     published = Column(Boolean, server_default="TRUE")
     created_at = Column(TIMESTAMP(timezone=True), server_default=text("NOW()"))
 
+
+class Vote(Base):
+    __tablename__ = "votes"
+
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=False, primary_key=True)
+    user = relationship("User")
+    post_id = Column(Integer, ForeignKey("posts.id", ondelete="CASCADE"), nullable=False, primary_key=True)
+
 # class User(Base):
 #     __tablename__ = "users"
 #
