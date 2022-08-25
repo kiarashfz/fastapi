@@ -452,6 +452,55 @@
 			"response": []
 		},
 		{
+			"name": "create voting",
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "accessTokenUrl",
+							"value": "",
+							"type": "string"
+						},
+						{
+							"key": "authUrl",
+							"value": "",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "{{API_KEY_NAME}}",
+						"value": "{{API_KEY}}",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"9rrrt\",\n    \"content\": \"9c\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{URL}}votes",
+					"host": [
+						"{{URL}}votes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "token",
 			"request": {
 				"method": "POST",
