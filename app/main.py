@@ -5,6 +5,7 @@ from app.database import engine
 from app.graphqls import graphql_app
 from app.oauth2 import get_api_key
 from app.routers import posts, users, auth, votes
+from app.websockets import websocket_endpoint
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -17,7 +18,7 @@ app.include_router(users.router)
 app.include_router(auth.router)
 app.include_router(votes.router)
 app.add_route("/graphql", graphql_app)
-app.add_websocket_route("/graphql", graphql_app)
+app.add_websocket_route("/websocket", websocket_endpoint)
 app.include_router(websockets.router)
 
 
